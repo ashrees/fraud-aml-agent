@@ -1,0 +1,29 @@
+{
+  "name": "fraud-aml-agent",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Event-driven AML investigation platform: streaming ingestion, dbt models, and a multi-agent investigator with human sign-off.",
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "tsc -b packages/shared services/simulator services/ingest-consumer",
+    "typecheck": "npm run build",
+    "test": "node --conditions=development --import tsx --test services/*/test/*.test.ts",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:reset": "docker compose down -v",
+    "sim": "npm run start -w @aml/simulator",
+    "sim:dry": "npm run dry -w @aml/simulator --",
+    "ingest": "npm run start -w @aml/ingest-consumer"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

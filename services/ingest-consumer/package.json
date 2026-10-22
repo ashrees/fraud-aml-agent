@@ -1,0 +1,16 @@
+{
+  "name": "@aml/ingest-consumer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Kafka/Redpanda → MinIO raw landing zone (at-least-once)",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "tsx --conditions=development src/index.ts"
+  },
+  "dependencies": {
+    "@aml/shared": "0.1.0",
+    "@aws-sdk/client-s3": "^3.650.0",
+    "@confluentinc/kafka-javascript": "^1.0.0"
+  }
+}

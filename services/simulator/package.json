@@ -1,0 +1,16 @@
+{
+  "name": "@aml/simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Synthetic core-banking transaction stream with injected AML typologies",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "tsx --conditions=development src/index.ts",
+    "dry": "tsx --conditions=development src/index.ts --dry-run"
+  },
+  "dependencies": {
+    "@aml/shared": "0.1.0",
+    "@confluentinc/kafka-javascript": "^1.0.0"
+  }
+}
