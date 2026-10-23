@@ -12,7 +12,7 @@ investigator that drafts Suspicious Activity Report (SAR) narratives for a
 
 ```
 PHASE 1 — DATA PLATFORM
-[TS Simulator] ──► Redpanda (Kafka API) ──► [TS Ingest Consumer] ──► MinIO (S3) raw zone
+[TS Simulator] ──► Redpanda (Kafka API) ──► [TS Ingest Consumer] ──► SeaweedFS (S3) raw zone
    raw_txns / raw_reference                    at-least-once           jsonl.gz, Hive partitions
                                                                               │
                                               dbt + DuckDB  ◄─────────────────┘
@@ -32,15 +32,17 @@ LATER — C++ real-time detection engine on the hot path (benchmarked vs. TS)
 |---|---|---|
 | Services & agents | TypeScript (Node 22) | Typed, testable, one language across services |
 | Broker | Redpanda | Kafka-compatible API, laptop-friendly |
-| Raw zone | MinIO | S3-compatible; same code runs on AWS S3 |
+| Raw zone | SeaweedFS | S3-compatible, Apache-2.0; same code runs on AWS S3 |
 | Warehouse | DuckDB (Snowflake as prod target) | Free, fast, reads straight from S3 |
 | Modeling | dbt Core | Tests, docs, lineage |
 | Ops DB | Postgres | Alerts, cases, HITL decisions, append-only audit log |
 | Hot-path detection | C++ (planned) | Throughput/latency where it matters |
 
+> **Why SeaweedFS, not MinIO?** MinIO's open-source project was archived and its images were removed from Docker Hub (Sept 2026), with anonymous pulls from Quay blocked soon after. SeaweedFS is an Apache-2.0, S3-compatible drop-in; the code only talks S3, so swapping stores was a config change.
+
 ## Status
 
-- [x] **Week 1** — Infra, transaction simulator, Kafka → MinIO ingestion
+- [x] **Week 1** — Infra, transaction simulator, Kafka → S3 ingestion
 - [ ] Week 2 — DuckDB reads raw zone; dbt staging
 - [ ] Week 3 — dbt core marts + tests
 - [ ] Week 4 — AML marts + Metrics API
@@ -58,9 +60,9 @@ Requirements: Node 22+, Docker Desktop (or Docker Engine with Compose).
 ```bash
 cp .env.example .env
 npm install
-npm run infra:up          # Redpanda, MinIO, Postgres (+ topics, bucket, schema)
+npm run infra:up          # Redpanda, SeaweedFS, Postgres (+ topics, bucket, schema)
 
-# terminal 1 — land raw events in MinIO
+# terminal 1 — land raw events in the S3 raw zone
 npm run ingest
 
 # terminal 2 — publish reference data, 30 days of history, then a live stream
@@ -72,7 +74,8 @@ Then look around:
 | UI | URL | Login |
 |---|---|---|
 | Redpanda Console (topics, messages) | http://localhost:8080 | — |
-| MinIO Console (raw zone files) | http://localhost:9001 | minioadmin / minioadmin |
+| SeaweedFS Filer (raw zone files) | http://localhost:8888 | — |
+| SeaweedFS Admin UI | http://localhost:23646 | — |
 
 **No Docker?** Generate the same data to local files:
 
@@ -113,7 +116,7 @@ second and starts a time-compressed scenario every `SIM_LIVE_SCENARIO_EVERY_SEC`
 The ingest consumer gives **at-least-once** delivery:
 
 1. Buffer messages (flush at `INGEST_BATCH_SIZE` messages or `INGEST_FLUSH_MS`).
-2. Write gzip NDJSON objects to MinIO.
+2. Write gzip NDJSON objects to the S3 store.
 3. Commit Kafka offsets **only after** every object is written.
 
 A crash between steps 2 and 3 re-delivers messages rather than losing them.
@@ -138,9 +141,9 @@ Kafka offset.
 ```
 packages/shared/          event contracts (TransactionEvent, CustomerRecord…), config, logger
 services/simulator/       seeded generator, typology planner, Kafka + file sinks
-services/ingest-consumer/ Kafka → MinIO landing with offset-safe commits
+services/ingest-consumer/ Kafka → S3 landing with offset-safe commits
 db/postgres/init.sql      alerts, cases, review_decisions, append-only audit_log
-docker-compose.yml        Redpanda, Console, MinIO, Postgres + init jobs
+docker-compose.yml        Redpanda, Console, SeaweedFS, Postgres + init job
 ```
 
 ## Development

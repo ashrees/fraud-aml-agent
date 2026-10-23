@@ -4,7 +4,7 @@ import { planLanding, type InboundMessage } from "./landing.js";
 import { ObjectStore } from "./object-store.js";
 
 /**
- * Kafka → MinIO raw landing zone ("bronze" layer).
+ * Kafka → S3 (SeaweedFS) raw landing zone ("bronze" layer).
  *
  * Delivery guarantee: AT-LEAST-ONCE.
  *   1. Buffer messages in memory.

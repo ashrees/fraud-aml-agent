@@ -3,7 +3,7 @@ import type { Logger } from "@aml/shared";
 import type { LandingObject } from "./landing.js";
 
 /**
- * Thin S3 wrapper. Works against MinIO locally and real AWS S3 unchanged —
+ * Thin S3 wrapper. Works against SeaweedFS (or any S3-compatible store) locally and real AWS S3 unchanged —
  * only the endpoint and credentials differ.
  */
 export class ObjectStore {
@@ -16,7 +16,7 @@ export class ObjectStore {
     this.client = new S3Client({
       endpoint: cfg.endpoint,
       region: cfg.region,
-      forcePathStyle: true, // required for MinIO
+      forcePathStyle: true, // required for local S3-compatible stores
       credentials: { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey },
     });
   }

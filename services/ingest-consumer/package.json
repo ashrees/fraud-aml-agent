@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Kafka/Redpanda → MinIO raw landing zone (at-least-once)",
+  "description": "Kafka/Redpanda → S3 (SeaweedFS) raw landing zone (at-least-once)",
   "scripts": {
     "build": "tsc -b",
     "start": "tsx --conditions=development src/index.ts"

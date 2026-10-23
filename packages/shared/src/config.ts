@@ -41,6 +41,6 @@ export const s3Config = () => ({
   endpoint: env("S3_ENDPOINT", "http://localhost:9000"),
   region: env("S3_REGION", "us-east-1"),
   bucket: env("S3_BUCKET", "aml-raw"),
-  accessKeyId: env("MINIO_ROOT_USER", "minioadmin"),
-  secretAccessKey: env("MINIO_ROOT_PASSWORD", "minioadmin"),
+  accessKeyId: env("S3_ACCESS_KEY_ID", "amladmin"),
+  secretAccessKey: env("S3_SECRET_ACCESS_KEY", "amladmin-secret"),
 });
